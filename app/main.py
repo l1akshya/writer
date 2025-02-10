@@ -20,10 +20,17 @@ PLACEHOLDERS = {
     "Place_Holder_contact": "Contact Number",
     "Place_Holder_Mail": "Email",
     "Place_Holder_linkedin": "LinkedIn Profile",
-    "Place_Holder_github": "GitHub Profile"
+    "Place_Holder_github": "GitHub Profile",
+    "PlaceHolderEducation": "Education Institute",
+    "PlaceHolderCourse": "Course Undertaken",
+    "PlaceHolderLocation1": "Location of Institute",
+    "PlaceHolderStartMonth": "Start Month",
+    "PlaceHolderStartYear": "Start Year",
+    "PlaceHolderEndMonth": "End Month",
+    "PlaceHolderEndYear": "End Year"
 }
 
-# Set folder paths - these should be configured based on your deployment
+# Rest of the code remains the same
 TEMPLATE_FOLDER = r"C:\Users\DELL\OneDrive\Desktop\writer\Tempelates"
 OUTPUT_FOLDER = r"C:\Users\DELL\OneDrive\Desktop\writer\outputs"
 

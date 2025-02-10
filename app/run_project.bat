@@ -9,5 +9,3 @@ start cmd /k "uvicorn main:app --reload"
 
 timeout /t 2
 
-cd /d "C:\Users\DELL\OneDrive\Desktop\writer\app\main.py"
-start code .

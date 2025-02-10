@@ -119,13 +119,17 @@
 \end{center}
 
 
-%-----------EDUCATION-----------
 \section{Education}
-  \resumeSubHeadingListStart
+\resumeSubHeadingListStart
     \resumeSubheading
-      {PlaceHolderEducation}{PlaceHolderEducationLocation}
-      {PlaceHolderCourse}{PlaceHolderStartMonth. PlaceHolderStartYear -- PlaceHolderEndMonth PlaceHolderEndYear}
-  \resumeSubHeadingListEnd
+      {\hspace{0pt}\textbf{PlaceHolderEducation}}  % Left-aligned
+      {\begin{minipage}[t]{0.5\textwidth} \raggedleft \textbf{PlaceHolderLocation1} \end{minipage}}  % Right-aligned in a minipage
+      {PlaceHolderCourse}
+      {PlaceHolderStartMonth PlaceHolderStartYear -- PlaceHolderEndMonth PlaceHolderEndYear}
+\resumeSubHeadingListEnd
+
+
+
 
 
 %-----------EXPERIENCE-----------
@@ -133,8 +137,8 @@
   \resumeSubHeadingListStart
 
     \resumeSubheading
-      {Undergraduate Research Assistant}{June 2020 -- Present}
-      {Texas A\&M University}{College Station, TX}
+      {PlaceHolderExperiencePosition}{PlaceHolderExperiencePositionStartMonth PlaceHolderExperiencePositionStartYear -- PlaceHolderExperiencePositionEndMonth PlaceHolderExperiencePositionStartYear}
+      {PlaceHolderExperience}{College Station, TX}
       \resumeItemListStart
         \resumeItem{Developed a REST API using FastAPI and PostgreSQL to store data from learning management systems}
         \resumeItem{Developed a full-stack web application using Flask, React, PostgreSQL and Docker to analyze GitHub data}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const TemplateForm = () => {
+export default function TemplateForm() {
   const [templates, setTemplates] = useState({});
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [formData, setFormData] = useState({
@@ -11,12 +11,18 @@ const TemplateForm = () => {
     email: '',
     linkedin: '',
     github: '',
+    education: '',
+    course: '',
+    location: '',
+    startMonth: '',
+    startYear: '',
+    endMonth: '',
+    endYear: '',
     outputFilename: ''
   });
   const [status, setStatus] = useState('');
 
   useEffect(() => {
-    // Fetch available templates
     const fetchTemplates = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/templates');
@@ -26,7 +32,6 @@ const TemplateForm = () => {
         setStatus('Error loading templates');
       }
     };
-
     fetchTemplates();
   }, []);
 
@@ -42,13 +47,19 @@ const TemplateForm = () => {
     e.preventDefault();
     setStatus('Generating PDF...');
 
-    // Map form data to placeholder values
     const placeholderValues = {
       'Place_Holder_Name': formData.name,
       'Place_Holder_contact': formData.contact,
       'Place_Holder_Mail': formData.email,
       'Place_Holder_linkedin': formData.linkedin,
-      'Place_Holder_github': formData.github
+      'Place_Holder_github': formData.github,
+      'PlaceHolderEducation': formData.education,
+      'PlaceHolderCourse': formData.course,
+      'PlaceHolderLocation1': formData.location,
+      'PlaceHolderStartMonth': formData.startMonth,
+      'PlaceHolderStartYear': formData.startYear,
+      'PlaceHolderEndMonth': formData.endMonth,
+      'PlaceHolderEndYear': formData.endYear
     };
 
     try {
@@ -65,22 +76,17 @@ const TemplateForm = () => {
       });
 
       const data = await response.json();
-      if (response.ok) {
-        setStatus('PDF generated successfully!');
-      } else {
-        setStatus(`Error: ${data.detail}`);
-      }
+      setStatus(response.ok ? 'PDF generated successfully!' : `Error: ${data.detail}`);
     } catch (error) {
       setStatus('Error generating PDF');
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <main className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Resume Generator</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Template Selection */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">
             Select Template:
@@ -92,19 +98,15 @@ const TemplateForm = () => {
             >
               <option value="">Choose a template</option>
               {Object.entries(templates).map(([id, name]) => (
-                <option key={id} value={name}>
-                  {name}
-                </option>
+                <option key={id} value={name}>{name}</option>
               ))}
             </select>
           </label>
         </div>
 
-        {/* Personal Information */}
         <div className="bg-gray-50 p-4 rounded-lg space-y-4">
           <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
           
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Full Name:
@@ -120,7 +122,6 @@ const TemplateForm = () => {
             </label>
           </div>
 
-          {/* Contact */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Contact Number:
@@ -136,7 +137,6 @@ const TemplateForm = () => {
             </label>
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Email Address:
@@ -152,7 +152,6 @@ const TemplateForm = () => {
             </label>
           </div>
 
-          {/* LinkedIn */}
           <div>
             <label className="block text-sm font-medium mb-2">
               LinkedIn Profile:
@@ -168,7 +167,6 @@ const TemplateForm = () => {
             </label>
           </div>
 
-          {/* GitHub */}
           <div>
             <label className="block text-sm font-medium mb-2">
               GitHub Profile:
@@ -183,9 +181,116 @@ const TemplateForm = () => {
               />
             </label>
           </div>
+
+          <div className="bg-white p-4 rounded-lg space-y-4">
+            <h3 className="text-lg font-semibold mb-2">Education Details</h3>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Educational Institute:
+                <input
+                  type="text"
+                  name="education"
+                  value={formData.education}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                  placeholder="Harvard University"
+                />
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Course:
+                <input
+                  type="text"
+                  name="course"
+                  value={formData.course}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                  placeholder="Bachelors in Engineering"
+                />
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Institute Location:
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                  placeholder="Massachusetts"
+                />
+              </label>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Start Month:
+                  <input
+                    type="text"
+                    name="startMonth"
+                    value={formData.startMonth}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-2 border rounded-md"
+                    required
+                    placeholder="September"
+                  />
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Start Year:
+                  <input
+                    type="text"
+                    name="startYear"
+                    value={formData.startYear}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-2 border rounded-md"
+                    required
+                    placeholder="2020"
+                  />
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  End Month:
+                  <input
+                    type="text"
+                    name="endMonth"
+                    value={formData.endMonth}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-2 border rounded-md"
+                    required
+                    placeholder="May"
+                  />
+                </label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  End Year:
+                  <input
+                    type="text"
+                    name="endYear"
+                    value={formData.endYear}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-2 border rounded-md"
+                    required
+                    placeholder="2024"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Output Filename */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Output Filename:
@@ -201,7 +306,6 @@ const TemplateForm = () => {
           </label>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors font-medium"
@@ -210,7 +314,6 @@ const TemplateForm = () => {
           Generate Resume PDF
         </button>
 
-        {/* Status Message */}
         {status && (
           <div className={`mt-4 p-4 rounded-md ${
             status.includes('Error') 
@@ -221,8 +324,6 @@ const TemplateForm = () => {
           </div>
         )}
       </form>
-    </div>
+    </main>
   );
-};
-
-export default TemplateForm;
+}
