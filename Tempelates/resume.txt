@@ -70,9 +70,10 @@
 
 \newcommand{\resumeSubheading}[4]{
   \vspace{-2pt}\item
-    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
-      \textbf{#1} & #2 \\
-      \textit{\small#3} & \textit{\small #4} \\
+    \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & \\
+      \textbf{#2} & \textit{#4} \\
+      \textit{\small#3} &  \\
     \end{tabular*}\vspace{-7pt}
 }
 
@@ -118,17 +119,14 @@
     \href{}{\underline{Place_Holder_github}}
 \end{center}
 
-
 \section{Education}
 \resumeSubHeadingListStart
     \resumeSubheading
-      {\hspace{0pt}\textbf{PlaceHolderEducation}}  % Left-aligned
-      {\begin{minipage}[t]{0.5\textwidth} \raggedleft \textbf{PlaceHolderLocation1} \end{minipage}}  % Right-aligned in a minipage
+      {PlaceHolderEducation}
+      {PlaceHolderLocation1}
       {PlaceHolderCourse}
       {PlaceHolderStartMonth PlaceHolderStartYear -- PlaceHolderEndMonth PlaceHolderEndYear}
 \resumeSubHeadingListEnd
-
-
 
 
 

@@ -1,16 +1,35 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 
-export default function TemplateForm() {
-  const [templates, setTemplates] = useState({});
+interface EducationEntry {
+  education: string;
+  course: string;
+  location: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  isPresent: boolean;
+}
+
+interface BasicInfo {
+  name: string;
+  contact: string;
+  email: string;
+  linkedin: string;
+  github: string;
+  outputFilename: string;
+}
+
+interface Templates {
+  [key: number]: string;
+}
+
+const TemplateForm: React.FC = () => {
+  const [templates, setTemplates] = useState<Templates>({});
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    contact: '',
-    email: '',
-    linkedin: '',
-    github: '',
+  const [educationEntries, setEducationEntries] = useState<EducationEntry[]>([{
     education: '',
     course: '',
     location: '',
@@ -18,6 +37,14 @@ export default function TemplateForm() {
     startYear: '',
     endMonth: '',
     endYear: '',
+    isPresent: false
+  }]);
+  const [basicInfo, setBasicInfo] = useState<BasicInfo>({
+    name: '',
+    contact: '',
+    email: '',
+    linkedin: '',
+    github: '',
     outputFilename: ''
   });
   const [status, setStatus] = useState('');
@@ -35,31 +62,56 @@ export default function TemplateForm() {
     fetchTemplates();
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleBasicInfoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setBasicInfo(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleEducationChange = (index: number, field: keyof EducationEntry, value: string | boolean) => {
+    setEducationEntries(prev => {
+      const newEntries = [...prev];
+      newEntries[index] = {
+        ...newEntries[index],
+        [field]: value,
+        // Reset end dates when toggling to present
+        ...(field === 'isPresent' && value === true ? { endMonth: 'Present', endYear: 'Present' } : {})
+      };
+      return newEntries;
+    });
+  };
+
+  const addEducationEntry = () => {
+    setEducationEntries(prev => [...prev, {
+      education: '',
+      course: '',
+      location: '',
+      startMonth: '',
+      startYear: '',
+      endMonth: '',
+      endYear: '',
+      isPresent: false
+    }]);
+  };
+
+  const removeEducationEntry = (index: number) => {
+    if (educationEntries.length > 1) {
+      setEducationEntries(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('Generating PDF...');
 
-    const placeholderValues = {
-      'Place_Holder_Name': formData.name,
-      'Place_Holder_contact': formData.contact,
-      'Place_Holder_Mail': formData.email,
-      'Place_Holder_linkedin': formData.linkedin,
-      'Place_Holder_github': formData.github,
-      'PlaceHolderEducation': formData.education,
-      'PlaceHolderCourse': formData.course,
-      'PlaceHolderLocation1': formData.location,
-      'PlaceHolderStartMonth': formData.startMonth,
-      'PlaceHolderStartYear': formData.startYear,
-      'PlaceHolderEndMonth': formData.endMonth,
-      'PlaceHolderEndYear': formData.endYear
+    const basicInfoPayload = {
+      'Place_Holder_Name': basicInfo.name,
+      'Place_Holder_contact': basicInfo.contact,
+      'Place_Holder_Mail': basicInfo.email,
+      'Place_Holder_linkedin': basicInfo.linkedin,
+      'Place_Holder_github': basicInfo.github,
     };
 
     try {
@@ -70,8 +122,9 @@ export default function TemplateForm() {
         },
         body: JSON.stringify({
           template_name: selectedTemplate,
-          placeholder_values: placeholderValues,
-          output_filename: formData.outputFilename,
+          basic_info: basicInfoPayload,
+          education_entries: educationEntries,
+          output_filename: basicInfo.outputFilename,
         }),
       });
 
@@ -83,10 +136,11 @@ export default function TemplateForm() {
   };
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Resume Generator</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Template Selection */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">
             Select Template:
@@ -104,201 +158,165 @@ export default function TemplateForm() {
           </label>
         </div>
 
+        {/* Basic Information */}
         <div className="bg-gray-50 p-4 rounded-lg space-y-4">
           <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
           
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Full Name:
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-                placeholder="John Doe"
-              />
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Contact Number:
-              <input
-                type="tel"
-                name="contact"
-                value={formData.contact}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-                placeholder="+1 234 567 8900"
-              />
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Email Address:
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-                placeholder="john.doe@example.com"
-              />
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              LinkedIn Profile:
-              <input
-                type="url"
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-                placeholder="https://linkedin.com/in/johndoe"
-              />
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              GitHub Profile:
-              <input
-                type="url"
-                name="github"
-                value={formData.github}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-                placeholder="https://github.com/johndoe"
-              />
-            </label>
-          </div>
-
-          <div className="bg-white p-4 rounded-lg space-y-4">
-            <h3 className="text-lg font-semibold mb-2">Education Details</h3>
-            
-            <div>
+          {Object.entries({
+            name: 'Full Name',
+            contact: 'Contact Number',
+            email: 'Email Address',
+            linkedin: 'LinkedIn Profile',
+            github: 'GitHub Profile'
+          }).map(([field, label]) => (
+            <div key={field}>
               <label className="block text-sm font-medium mb-2">
-                Educational Institute:
+                {label}:
                 <input
-                  type="text"
-                  name="education"
-                  value={formData.education}
-                  onChange={handleInputChange}
+                  type={field === 'email' ? 'email' : field.includes('url') ? 'url' : 'text'}
+                  name={field}
+                  value={basicInfo[field as keyof BasicInfo]}
+                  onChange={handleBasicInfoChange}
                   className="mt-1 block w-full p-2 border rounded-md"
                   required
-                  placeholder="Harvard University"
                 />
               </label>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Course:
-                <input
-                  type="text"
-                  name="course"
-                  value={formData.course}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                  placeholder="Bachelors in Engineering"
-                />
-              </label>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Institute Location:
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                  placeholder="Massachusetts"
-                />
-              </label>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Start Month:
-                  <input
-                    type="text"
-                    name="startMonth"
-                    value={formData.startMonth}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full p-2 border rounded-md"
-                    required
-                    placeholder="September"
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Start Year:
-                  <input
-                    type="text"
-                    name="startYear"
-                    value={formData.startYear}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full p-2 border rounded-md"
-                    required
-                    placeholder="2020"
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  End Month:
-                  <input
-                    type="text"
-                    name="endMonth"
-                    value={formData.endMonth}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full p-2 border rounded-md"
-                    required
-                    placeholder="May"
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  End Year:
-                  <input
-                    type="text"
-                    name="endYear"
-                    value={formData.endYear}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full p-2 border rounded-md"
-                    required
-                    placeholder="2024"
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
+        {/* Education Entries */}
+        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Education Details</h2>
+            <button
+              type="button"
+              onClick={addEducationEntry}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+            >
+              Add Education
+            </button>
+          </div>
+
+          {educationEntries.map((entry, index) => (
+            <div key={index} className="bg-white p-4 rounded-lg space-y-4 relative">
+              {educationEntries.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeEducationEntry(index)}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              )}
+              
+              <h3 className="text-lg font-semibold mb-2">Education Entry {index + 1}</h3>
+              
+              <div className="space-y-4">
+                {/* Education Entry Fields */}
+                {[
+                  ['education', 'Educational Institute'],
+                  ['course', 'Course'],
+                  ['location', 'Institute Location']
+                ].map(([field, label]) => (
+                  <div key={field}>
+                    <label className="block text-sm font-medium mb-2">
+                      {label}:
+                      <input
+                        type="text"
+                        value={entry[field as keyof EducationEntry]}
+                        onChange={(e) => handleEducationChange(index, field as keyof EducationEntry, e.target.value)}
+                        className="mt-1 block w-full p-2 border rounded-md"
+                        required
+                      />
+                    </label>
+                  </div>
+                ))}
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Start Date Fields */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Start Month:
+                      <input
+                        type="text"
+                        value={entry.startMonth}
+                        onChange={(e) => handleEducationChange(index, 'startMonth', e.target.value)}
+                        className="mt-1 block w-full p-2 border rounded-md"
+                        required
+                      />
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Start Year:
+                      <input
+                        type="text"
+                        value={entry.startYear}
+                        onChange={(e) => handleEducationChange(index, 'startYear', e.target.value)}
+                        className="mt-1 block w-full p-2 border rounded-md"
+                        required
+                      />
+                    </label>
+                  </div>
+
+                  {/* Present Toggle */}
+                  <div className="col-span-2">
+                    <label className="flex items-center space-x-2 text-sm font-medium">
+                      <input
+                        type="checkbox"
+                        checked={entry.isPresent}
+                        onChange={(e) => handleEducationChange(index, 'isPresent', e.target.checked)}
+                        className="form-checkbox h-4 w-4 text-blue-500"
+                      />
+                      <span>Currently Studying Here</span>
+                    </label>
+                  </div>
+
+                  {/* End Date Fields - Only show if not present */}
+                  {!entry.isPresent && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          End Month:
+                          <input
+                            type="text"
+                            value={entry.endMonth}
+                            onChange={(e) => handleEducationChange(index, 'endMonth', e.target.value)}
+                            className="mt-1 block w-full p-2 border rounded-md"
+                            required
+                          />
+                        </label>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          End Year:
+                          <input
+                            type="text"
+                            value={entry.endYear}
+                            onChange={(e) => handleEducationChange(index, 'endYear', e.target.value)}
+                            className="mt-1 block w-full p-2 border rounded-md"
+                            required
+                          />
+                        </label>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Output Filename */}
         <div>
           <label className="block text-sm font-medium mb-2">
             Output Filename:
             <input
               type="text"
               name="outputFilename"
-              value={formData.outputFilename}
-              onChange={handleInputChange}
+              value={basicInfo.outputFilename}
+              onChange={handleBasicInfoChange}
               className="mt-1 block w-full p-2 border rounded-md"
               required
               placeholder="my-resume"
@@ -306,10 +324,11 @@ export default function TemplateForm() {
           </label>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition-colors font-medium"
-          disabled={!selectedTemplate || !formData.outputFilename}
+          disabled={!selectedTemplate || !basicInfo.outputFilename}
         >
           Generate Resume PDF
         </button>
@@ -324,6 +343,8 @@ export default function TemplateForm() {
           </div>
         )}
       </form>
-    </main>
+    </div>
   );
-}
+};
+
+export default TemplateForm;
